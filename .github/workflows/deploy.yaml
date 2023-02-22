@@ -1,0 +1,23 @@
+name: deploy
+on: [ workflow_dispatch ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.KEY }}
+          REMOTE_HOST: ${{ secrets.HOST }}
+          REMOTE_USER: ${{ secrets.USERNAME }}
+          TARGET: "/var/www/maintenance"
+          SOURCE: "./index.html"
+      - uses: rez0n/create-dns-record@v2.1
+        with:
+          type: "A"
+          name: ${{ secrets.NAME }}
+          content: ${{ secrets.CONTENT }}
+          ttl: 1
+          proxied: false
+          token: ${{ secrets.CLOUDFLARE_TOKEN }}
+          zone: ${{ secrets.CLOUDFLARE_ZONE }}
